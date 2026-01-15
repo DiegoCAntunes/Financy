@@ -11,9 +11,9 @@ export class AuthService {
         email: data.email,
       },
     });
-    if (!existingUser) throw new Error("Usuário não cadastrado!");
+    if (!existingUser) throw new Error("User is not logged in!");
     const compare = await comparePassword(data.password, existingUser.password);
-    if (!compare) throw new Error("Senha inválida!");
+    if (!compare) throw new Error("Invalid password!");
     return this.gerenerateTokens(existingUser);
   }
 
@@ -23,7 +23,7 @@ export class AuthService {
         email: data.email,
       },
     });
-    if (existingUser) throw new Error("E-mail já cadastrado!");
+    if (existingUser) throw new Error("E-mail already registered!");
 
     const hash = await hashPassword(data.password);
 

@@ -16,10 +16,10 @@ export const GqlUser = () => {
             id: context.user,
           },
         });
-        if (!user) throw new Error("Usuário não encontrado");
+        if (!user) throw new Error("User not found");
         return user;
       } catch (error) {
-        console.log("Error ao instanciar o gqluser");
+        console.log("Error fetching user in GqlUser decorator:", error);
       }
     }
   );

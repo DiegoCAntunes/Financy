@@ -37,7 +37,7 @@ export class UserResolver {
     @Arg("id", () => String) id: string,
     @Ctx() ctx: GraphqlContext
   ): Promise<boolean> {
-    if (ctx.user === id) throw new Error("Você não pode excluir a si mesmo.");
+    if (ctx.user === id) throw new Error("You cannot delete yourself.");
     return this.userService.deleteUser(id);
   }
 

@@ -8,7 +8,7 @@ export class UserService {
         email: data.email,
       },
     });
-    if (findUser) throw new Error("Usuário já cadastrado!");
+    if (findUser) throw new Error("User already registered!");
 
     return prismaClient.user.create({
       data: {
@@ -24,7 +24,7 @@ export class UserService {
         id,
       },
     });
-    if (!user) throw new Error("Usuário não existe");
+    if (!user) throw new Error("User does not exist");
     return user;
   }
 
@@ -36,7 +36,7 @@ export class UserService {
     const user = await prismaClient.user.findUnique({
       where: { id },
     });
-    if (!user) throw new Error("Usuário não existe");
+    if (!user) throw new Error("User does not exist");
 
     return prismaClient.user.update({
       where: { id },
@@ -51,7 +51,7 @@ export class UserService {
     const user = await prismaClient.user.findUnique({
       where: { id },
     });
-    if (!user) throw new Error("Usuário não existe");
+    if (!user) throw new Error("User does not exist");
 
     await prismaClient.user.delete({
       where: { id },
