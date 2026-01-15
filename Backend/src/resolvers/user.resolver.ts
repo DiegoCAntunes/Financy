@@ -8,7 +8,7 @@ import {
 } from "type-graphql";
 import { UserModel } from "../models/user.model";
 import { UserService } from "../services/user.service";
-import { IsAuth } from "../middlewares/auth.middlewares";
+import { IsAuth } from "../middleware/auth.middleware";
 import { CreateUserInput, UpdateUserInput } from "../dtos/input/user.input";
 import { GraphqlContext } from "../graphql/context/index";
 

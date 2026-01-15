@@ -3,6 +3,29 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type CategoryModel {
+  color: String!
+  description: String
+  icon: String!
+  id: ID!
+  title: String!
+}
+
+input CreateCategoryInput {
+  color: String!
+  description: String
+  icon: String!
+  title: String!
+}
+
+input CreateTransactionInput {
+  amount: Float!
+  categoryId: String!
+  date: DateTimeISO!
+  description: String!
+  type: TransactionType!
+}
+
 input CreateUserInput {
   email: String!
   name: String!
@@ -25,16 +48,22 @@ type LoginOutput {
 }
 
 type Mutation {
+  createCategory(data: CreateCategoryInput!): CategoryModel!
+  createTransaction(data: CreateTransactionInput!): TransactionModel!
   createUser(data: CreateUserInput!): UserModel!
   deleteUser(id: String!): Boolean!
   login(data: LoginInput!): LoginOutput!
   register(data: RegisterInput!): RegisterOutput!
+  updateCategory(data: UpdateCategoryInput!, id: String!): CategoryModel!
+  updateTransaction(data: UpdateTransactionInput!, id: String!): TransactionModel!
   updateUser(data: UpdateUserInput!, id: String!): UserModel!
 }
 
 type Query {
   getUser(id: String!): UserModel!
+  listCategories: [CategoryModel!]!
   listUsers: [UserModel!]!
+  myTransactions: [TransactionModel!]!
 }
 
 input RegisterInput {
@@ -55,6 +84,37 @@ enum Role {
   member
   owner
   viewer
+}
+
+type TransactionModel {
+  amount: Float!
+  category: CategoryModel!
+  createdAt: DateTimeISO!
+  date: DateTimeISO!
+  description: String!
+  id: ID!
+  type: String!
+  updatedAt: DateTimeISO!
+}
+
+enum TransactionType {
+  EXPENSE
+  INCOME
+}
+
+input UpdateCategoryInput {
+  color: String
+  description: String
+  icon: String
+  title: String
+}
+
+input UpdateTransactionInput {
+  amount: Float
+  categoryId: String
+  date: DateTimeISO
+  description: String
+  type: TransactionType
 }
 
 input UpdateUserInput {

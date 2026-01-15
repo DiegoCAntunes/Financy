@@ -17,12 +17,45 @@ enum Role {
   viewer
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String?
-  role      Role     @default(member)
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String?
+  role         Role          @default(member)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+  icon        String
+  color       String
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  description String
+  amount      Float
+  date        DateTime
+  type        TransactionType
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
