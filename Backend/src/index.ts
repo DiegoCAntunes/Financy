@@ -8,6 +8,7 @@ import { AuthResolver } from "./resolvers/auth.resolver";
 import { UserResolver } from "./resolvers/user.resolver";
 import { CategoryResolver } from "./resolvers/category.resolver";
 import { TransactionResolver } from "./resolvers/transaction.resolver";
+import { buildContext } from "./graphql/context";
 
 async function startServer() {
   const app = express();
@@ -36,7 +37,13 @@ async function startServer() {
 
   await server.start();
 
-  app.use("/graphql", express.json(), expressMiddleware(server));
+  app.use(
+    "/graphql",
+    express.json(),
+    expressMiddleware(server, {
+      context: buildContext,
+    })
+  );
 
   app.listen(4000, () => {
     console.log("Server is running on http://localhost:4000/graphql");
