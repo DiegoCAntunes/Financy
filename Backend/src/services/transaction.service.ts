@@ -21,7 +21,7 @@ export class TransactionService {
   async updateTransaction(
     id: string,
     data: UpdateTransactionInput,
-    userId: string
+    userId: string,
   ) {
     const transaction = await prismaClient.transaction.findUnique({
       where: { id },
@@ -47,5 +47,16 @@ export class TransactionService {
       where: { userId },
       orderBy: { date: "desc" },
     });
+  }
+
+  async deleteTransaction(id: string, userId: string) {
+    const transaction = await prismaClient.transaction.findUnique({
+      where: { id },
+    });
+
+    if (!transaction) throw new Error("Transaction not found");
+    if (transaction.userId !== userId) throw new Error("Not authorized");
+
+    return prismaClient.transaction.delete({ where: { id } });
   }
 }

@@ -1,4 +1,12 @@
-import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { CategoryModel } from "../models/category.model";
 import {
   CreateCategoryInput,
@@ -14,21 +22,28 @@ export class CategoryResolver {
 
   @Mutation(() => CategoryModel)
   async createCategory(
-    @Arg("data", () => CreateCategoryInput) data: CreateCategoryInput
+    @Arg("data", () => CreateCategoryInput) data: CreateCategoryInput,
+    @Ctx() ctx: any,
   ) {
-    return this.categoryService.createCategory(data);
+    return this.categoryService.createCategory(data, ctx.user.id);
   }
 
   @Mutation(() => CategoryModel)
   async updateCategory(
-    @Arg("id", () => String) id: string,
-    @Arg("data", () => UpdateCategoryInput) data: UpdateCategoryInput
+    @Arg("id", () => ID) id: string,
+    @Arg("data", () => UpdateCategoryInput) data: UpdateCategoryInput,
+    @Ctx() ctx: any,
   ) {
-    return this.categoryService.updateCategory(id, data);
+    return this.categoryService.updateCategory(id, data, ctx.user.id);
+  }
+
+  @Mutation(() => CategoryModel)
+  async deleteCategory(@Arg("id", () => ID) id: string, @Ctx() ctx: any) {
+    return this.categoryService.deleteCategory(id, ctx.user.id);
   }
 
   @Query(() => [CategoryModel])
-  async listCategories() {
-    return this.categoryService.listCategories();
+  async myCategories(@Ctx() ctx: any) {
+    return this.categoryService.listCategoriesByUser(ctx.user.id);
   }
 }

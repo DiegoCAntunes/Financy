@@ -6,6 +6,7 @@ import {
   Root,
   FieldResolver,
   UseMiddleware,
+  ID,
 } from "type-graphql";
 import { TransactionModel } from "../models/transaction.model";
 import {
@@ -28,18 +29,26 @@ export class TransactionResolver {
   @Mutation(() => TransactionModel)
   async createTransaction(
     @Arg("data", () => CreateTransactionInput) data: CreateTransactionInput,
-    @GqlUser() user: UserModel
+    @GqlUser() user: UserModel,
   ) {
     return this.transactionService.createTransaction(data, user.id);
   }
 
   @Mutation(() => TransactionModel)
   async updateTransaction(
-    @Arg("id", () => String) id: string,
+    @Arg("id", () => ID) id: string,
     @Arg("data", () => UpdateTransactionInput) data: UpdateTransactionInput,
-    @GqlUser() user: UserModel
+    @GqlUser() user: UserModel,
   ) {
     return this.transactionService.updateTransaction(id, data, user.id);
+  }
+
+  @Mutation(() => TransactionModel)
+  async deleteTransaction(
+    @Arg("id", () => ID) id: string,
+    @GqlUser() user: UserModel,
+  ) {
+    return this.transactionService.deleteTransaction(id, user.id);
   }
 
   @Query(() => [TransactionModel])
@@ -48,11 +57,8 @@ export class TransactionResolver {
   }
 
   @FieldResolver(() => CategoryModel)
-  async category(@Root() transaction: any) {
-    return this.categoryService
-      .listCategories()
-      .then((categories) =>
-        categories.find((c) => c.id === transaction.categoryId)
-      );
+  async category(@Root() transaction: any, @GqlUser() user: UserModel) {
+    const categories = await this.categoryService.listCategoriesByUser(user.id);
+    return categories.find((c) => c.id === transaction.categoryId);
   }
 }

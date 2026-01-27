@@ -9,6 +9,7 @@ type CategoryModel {
   icon: String!
   id: ID!
   title: String!
+  userId: String!
 }
 
 input CreateCategoryInput {
@@ -51,18 +52,20 @@ type Mutation {
   createCategory(data: CreateCategoryInput!): CategoryModel!
   createTransaction(data: CreateTransactionInput!): TransactionModel!
   createUser(data: CreateUserInput!): UserModel!
+  deleteCategory(id: ID!): CategoryModel!
+  deleteTransaction(id: ID!): TransactionModel!
   deleteUser(id: String!): Boolean!
   login(data: LoginInput!): LoginOutput!
   register(data: RegisterInput!): RegisterOutput!
-  updateCategory(data: UpdateCategoryInput!, id: String!): CategoryModel!
-  updateTransaction(data: UpdateTransactionInput!, id: String!): TransactionModel!
+  updateCategory(data: UpdateCategoryInput!, id: ID!): CategoryModel!
+  updateTransaction(data: UpdateTransactionInput!, id: ID!): TransactionModel!
   updateUser(data: UpdateUserInput!, id: String!): UserModel!
 }
 
 type Query {
   getUser(id: String!): UserModel!
-  listCategories: [CategoryModel!]!
   listUsers: [UserModel!]!
+  myCategories: [CategoryModel!]!
   myTransactions: [TransactionModel!]!
 }
 

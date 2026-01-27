@@ -6,6 +6,9 @@ export class CategoryModel {
   id!: string;
 
   @Field(() => String)
+  userId!: string;
+
+  @Field(() => String)
   title!: string;
 
   @Field(() => String, { nullable: true })
