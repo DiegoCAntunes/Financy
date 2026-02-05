@@ -1,0 +1,120 @@
+# Types
+type UserModel {
+  id: ID!
+  name: String!
+  email: String!
+  password: String
+  role: Role
+  createdAt: DateTimeISO!
+  updatedAt: DateTimeISO!
+}
+
+type CategoryModel {
+  id: ID!
+  userId: String!
+  title: String!
+  description: String
+  icon: String!
+  color: String!
+}
+
+type TransactionModel {
+  id: ID!
+  description: String!
+  amount: Float!
+  date: DateTimeISO!
+  type: String!
+  category: CategoryModel!
+  createdAt: DateTimeISO!
+  updatedAt: DateTimeISO!
+}
+
+type LoginOutput {
+  token: String!
+  refreshToken: String!
+  user: UserModel!
+}
+
+type RegisterOutput {
+  token: String!
+  refreshToken: String!
+  user: UserModel!
+}
+
+# Enums
+enum Role {
+  owner
+  admin
+  member
+  viewer
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+# Scalars
+scalar DateTimeISO
+
+# Input Types
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RegisterInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+input CreateCategoryInput {
+  title: String!
+  description: String
+  icon: String!
+  color: String!
+}
+
+input UpdateCategoryInput {
+  title: String
+  description: String
+  icon: String
+  color: String
+}
+
+input CreateTransactionInput {
+  description: String!
+  amount: Float!
+  date: DateTimeISO!
+  type: TransactionType!
+  categoryId: String!
+}
+
+input UpdateTransactionInput {
+  description: String
+  amount: Float
+  date: DateTimeISO
+  type: TransactionType
+  categoryId: String
+}
+
+# Queries
+type Query {
+  getUser(id: String!): UserModel!
+  listUsers: [UserModel!]!
+  myCategories: [CategoryModel!]!
+  myTransactions: [TransactionModel!]!
+}
+
+# Mutations
+type Mutation {
+  login(data: LoginInput!): LoginOutput!
+  register(data: RegisterInput!): RegisterOutput!
+  createCategory(data: CreateCategoryInput!): CategoryModel!
+  updateCategory(id: ID!, data: UpdateCategoryInput!): CategoryModel!
+  deleteCategory(id: ID!): CategoryModel!
+  createTransaction(data: CreateTransactionInput!): TransactionModel!
+  updateTransaction(id: ID!, data: UpdateTransactionInput!): TransactionModel!
+  deleteTransaction(id: ID!): TransactionModel!
+}

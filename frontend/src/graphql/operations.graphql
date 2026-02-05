@@ -1,0 +1,127 @@
+# Auth Mutations
+mutation Login($data: LoginInput!) {
+  login(data: $data) {
+    token
+    refreshToken
+    user {
+      id
+      name
+      email
+      role
+    }
+  }
+}
+
+mutation Register($data: RegisterInput!) {
+  register(data: $data) {
+    token
+    refreshToken
+    user {
+      id
+      name
+      email
+      role
+    }
+  }
+}
+
+# Category Queries & Mutations
+query MyCategories {
+  myCategories {
+    id
+    userId
+    title
+    description
+    icon
+    color
+  }
+}
+
+mutation CreateCategory($data: CreateCategoryInput!) {
+  createCategory(data: $data) {
+    id
+    userId
+    title
+    description
+    icon
+    color
+  }
+}
+
+mutation UpdateCategory($id: ID!, $data: UpdateCategoryInput!) {
+  updateCategory(id: $id, data: $data) {
+    id
+    userId
+    title
+    description
+    icon
+    color
+  }
+}
+
+mutation DeleteCategory($id: ID!) {
+  deleteCategory(id: $id) {
+    id
+  }
+}
+
+# Transaction Queries & Mutations
+query MyTransactions {
+  myTransactions {
+    id
+    description
+    amount
+    date
+    type
+    category {
+      id
+      title
+      icon
+      color
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateTransaction($data: CreateTransactionInput!) {
+  createTransaction(data: $data) {
+    id
+    description
+    amount
+    date
+    type
+    category {
+      id
+      title
+      icon
+      color
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateTransaction($id: ID!, $data: UpdateTransactionInput!) {
+  updateTransaction(id: $id, data: $data) {
+    id
+    description
+    amount
+    date
+    type
+    category {
+      id
+      title
+      icon
+      color
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteTransaction($id: ID!) {
+  deleteTransaction(id: $id) {
+    id
+  }
+}
