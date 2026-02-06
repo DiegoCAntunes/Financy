@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
 import {
   Wallet,
   ArrowUpCircle,
@@ -78,11 +81,11 @@ const categories = [
 ];
 
 const categoryColors: Record<string, string> = {
-  Receita: "bg-green-100 text-green-700",
-  Alimentação: "bg-amber-100 text-amber-700",
-  Transporte: "bg-yellow-100 text-yellow-700",
-  Mercado: "bg-lime-100 text-lime-700",
-  Investimento: "bg-emerald-100 text-emerald-700",
+  Receita: "bg-green-100 text-green-700 hover:bg-green-100",
+  Alimentação: "bg-amber-100 text-amber-700 hover:bg-amber-100",
+  Transporte: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
+  Mercado: "bg-lime-100 text-lime-700 hover:bg-lime-100",
+  Investimento: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
 };
 
 const iconBgColors: Record<string, string> = {
@@ -184,13 +187,12 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          categoryColors[transaction.category]
-                        }`}
+                      <Badge
+                        variant="secondary"
+                        className={`rounded-full border-0 ${categoryColors[transaction.category]}`}
                       >
                         {transaction.category}
-                      </span>
+                      </Badge>
                       <div className="flex items-center gap-2 text-right">
                         <span
                           className={`font-semibold ${
@@ -216,13 +218,19 @@ export default function DashboardPage() {
               })}
             </div>
 
-            <Button
-              variant="ghost"
-              className="mt-6 w-full justify-center gap-2 text-muted-foreground hover:text-foreground"
+            <Separator className="my-6" />
+
+            <NewTransactionModal
+              onSubmit={(data) => console.log("Nova transação:", data)}
             >
-              <Plus className="h-4 w-4" />
-              Nova transação
-            </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-center gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <Plus className="h-4 w-4" />
+                Nova transação
+              </Button>
+            </NewTransactionModal>
           </CardContent>
         </Card>
 
@@ -248,13 +256,12 @@ export default function DashboardPage() {
                   key={category.name}
                   className="flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${category.color}`}
-                    >
-                      {category.name}
-                    </span>
-                  </div>
+                  <Badge
+                    variant="secondary"
+                    className={`rounded-full border-0 ${category.color} hover:opacity-100`}
+                  >
+                    {category.name}
+                  </Badge>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-muted-foreground">
                       {category.items} itens

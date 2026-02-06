@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -17,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
 import {
   Plus,
   Search,
@@ -123,13 +127,13 @@ const categories = [
 ];
 
 const categoryColors: Record<string, string> = {
-  Alimentação: "bg-amber-100 text-amber-700",
-  Transporte: "bg-yellow-100 text-yellow-700",
-  Mercado: "bg-lime-100 text-lime-700",
-  Investimento: "bg-emerald-100 text-emerald-700",
-  Utilidades: "bg-orange-100 text-orange-700",
-  Salário: "bg-green-100 text-green-700",
-  Entretenimento: "bg-red-100 text-red-700",
+  Alimentação: "bg-amber-100 text-amber-700 hover:bg-amber-100",
+  Transporte: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
+  Mercado: "bg-lime-100 text-lime-700 hover:bg-lime-100",
+  Investimento: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
+  Utilidades: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+  Salário: "bg-green-100 text-green-700 hover:bg-green-100",
+  Entretenimento: "bg-red-100 text-red-700 hover:bg-red-100",
 };
 
 const iconBgColors: Record<string, string> = {
@@ -181,10 +185,14 @@ export default function TransactionsPage() {
             Gerencie todas as suas transações financeiras
           </p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova transação
-        </Button>
+        <NewTransactionModal
+          onSubmit={(data) => console.log("Nova transação:", data)}
+        >
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nova transação
+          </Button>
+        </NewTransactionModal>
       </div>
 
       {/* Filters */}
@@ -192,9 +200,7 @@ export default function TransactionsPage() {
         <CardContent className="p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Buscar
-              </label>
+              <Label className="text-muted-foreground">Buscar</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -207,9 +213,7 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Tipo
-              </label>
+              <Label className="text-muted-foreground">Tipo</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
@@ -223,9 +227,7 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Categoria
-              </label>
+              <Label className="text-muted-foreground">Categoria</Label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todas" />
@@ -241,9 +243,7 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Período
-              </label>
+              <Label className="text-muted-foreground">Período</Label>
               <Select defaultValue="nov-2025">
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o período" />
@@ -306,13 +306,12 @@ export default function TransactionsPage() {
                       {transaction.date}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          categoryColors[transaction.category]
-                        }`}
+                      <Badge
+                        variant="secondary"
+                        className={`rounded-full border-0 ${categoryColors[transaction.category]}`}
                       >
                         {transaction.category}
-                      </span>
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -363,7 +362,8 @@ export default function TransactionsPage() {
           </Table>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between border-t px-6 py-4">
+          <Separator />
+          <div className="flex items-center justify-between px-6 py-4">
             <span className="text-sm text-muted-foreground">
               {startIndex + 1} a {endIndex} | {totalResults} resultados
             </span>

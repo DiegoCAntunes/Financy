@@ -66,12 +66,14 @@ export function Header() {
           </nav>
         </div>
 
-        <Avatar className="h-10 w-10 cursor-pointer">
-          <AvatarImage src="" alt="User" />
-          <AvatarFallback className="bg-zinc-200 text-zinc-600 text-sm font-medium">
-            CT
-          </AvatarFallback>
-        </Avatar>
+        <Link to="/profile">
+          <Avatar className="h-10 w-10 cursor-pointer">
+            <AvatarImage src="" alt="User" />
+            <AvatarFallback className="bg-zinc-200 text-zinc-600 text-sm font-medium">
+              CT
+            </AvatarFallback>
+          </Avatar>
+        </Link>
       </div>
     </header>
   );

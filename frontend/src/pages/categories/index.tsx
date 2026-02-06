@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Plus,
   Tags,
@@ -15,6 +16,7 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react";
+import { NewCategoryModal, type CategoryFormData } from "@/components/categories/new-category-modal";
 
 // Mock data
 const summaryData = {
@@ -35,7 +37,7 @@ const mockCategories = [
     icon: Utensils,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
-    badgeColor: "bg-green-100 text-green-700",
+    badgeColor: "bg-green-100 text-green-700 hover:bg-green-100",
   },
   {
     id: "2",
@@ -45,7 +47,7 @@ const mockCategories = [
     icon: Film,
     iconBg: "bg-red-100",
     iconColor: "text-red-600",
-    badgeColor: "bg-red-100 text-red-700",
+    badgeColor: "bg-red-100 text-red-700 hover:bg-red-100",
   },
   {
     id: "3",
@@ -55,7 +57,7 @@ const mockCategories = [
     icon: TrendingUp,
     iconBg: "bg-teal-100",
     iconColor: "text-teal-600",
-    badgeColor: "bg-teal-100 text-teal-700",
+    badgeColor: "bg-teal-100 text-teal-700 hover:bg-teal-100",
   },
   {
     id: "4",
@@ -65,7 +67,7 @@ const mockCategories = [
     icon: ShoppingCart,
     iconBg: "bg-orange-100",
     iconColor: "text-orange-600",
-    badgeColor: "bg-orange-100 text-orange-700",
+    badgeColor: "bg-orange-100 text-orange-700 hover:bg-orange-100",
   },
   {
     id: "5",
@@ -75,7 +77,7 @@ const mockCategories = [
     icon: Briefcase,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
-    badgeColor: "bg-green-100 text-green-700",
+    badgeColor: "bg-green-100 text-green-700 hover:bg-green-100",
   },
   {
     id: "6",
@@ -85,7 +87,7 @@ const mockCategories = [
     icon: Heart,
     iconBg: "bg-rose-100",
     iconColor: "text-rose-600",
-    badgeColor: "bg-rose-100 text-rose-700",
+    badgeColor: "bg-rose-100 text-rose-700 hover:bg-rose-100",
   },
   {
     id: "7",
@@ -95,7 +97,7 @@ const mockCategories = [
     icon: Car,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
-    badgeColor: "bg-blue-100 text-blue-700",
+    badgeColor: "bg-blue-100 text-blue-700 hover:bg-blue-100",
   },
   {
     id: "8",
@@ -105,12 +107,17 @@ const mockCategories = [
     icon: Zap,
     iconBg: "bg-lime-100",
     iconColor: "text-lime-600",
-    badgeColor: "bg-lime-100 text-lime-700",
+    badgeColor: "bg-lime-100 text-lime-700 hover:bg-lime-100",
   },
 ];
 
 export default function CategoriesPage() {
   const MostUsedIcon = summaryData.mostUsedCategory.icon;
+
+  const handleCreateCategory = (data: CategoryFormData) => {
+    console.log("Nova categoria:", data);
+    // TODO: Implement API call to create category
+  };
 
   return (
     <div className="space-y-6">
@@ -122,10 +129,12 @@ export default function CategoriesPage() {
             Organize suas transações por categorias
           </p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova categoria
-        </Button>
+        <NewCategoryModal onSubmit={handleCreateCategory}>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nova categoria
+          </Button>
+        </NewCategoryModal>
       </div>
 
       {/* Summary Cards */}
@@ -218,11 +227,12 @@ export default function CategoriesPage() {
                 </p>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${category.badgeColor}`}
+                  <Badge
+                    variant="secondary"
+                    className={`rounded-full border-0 ${category.badgeColor}`}
                   >
                     {category.name}
-                  </span>
+                  </Badge>
                   <span className="text-sm text-muted-foreground">
                     {category.itemCount} {category.itemCount === 1 ? "item" : "itens"}
                   </span>

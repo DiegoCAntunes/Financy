@@ -4,6 +4,7 @@ import RegisterPage from "@/pages/auth/register";
 import DashboardPage from "@/pages/dashboard";
 import TransactionsPage from "@/pages/transactions";
 import CategoriesPage from "@/pages/categories";
+import ProfilePage from "@/pages/profile";
 import { AppLayout } from "@/components/layout/app-layout";
 
 export const router = createBrowserRouter([
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: "/categories",
         element: <CategoriesPage />,
+      },
+      {
+        path: "/profile",
+        element: <ProfilePage />,
       },
     ],
   },
