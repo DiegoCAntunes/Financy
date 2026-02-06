@@ -41,3 +41,7 @@ Thumbs.db
 
 # Vite cache
 .vite/
+
+# Test coverage
+coverage/
+.vitest/

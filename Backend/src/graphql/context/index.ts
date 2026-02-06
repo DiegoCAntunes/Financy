@@ -21,7 +21,9 @@ export const buildContext = async ({
     try {
       const payload = verifyJwt(token) as JwtPayload;
       user = payload.id;
-    } catch (error) {}
+    } catch {
+      // Token inválido, ignorar
+    }
   }
   return { user, token, req, res };
 };
