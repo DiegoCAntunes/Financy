@@ -66,6 +66,7 @@ export type Mutation = {
   register: RegisterOutput;
   updateCategory: CategoryModel;
   updateTransaction: TransactionModel;
+  updateUser: UserModel;
 };
 
 
@@ -108,6 +109,12 @@ export type MutationUpdateCategoryArgs = {
 export type MutationUpdateTransactionArgs = {
   data: UpdateTransactionInput;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  data: UpdateUserInput;
+  id: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -175,6 +182,11 @@ export type UpdateTransactionInput = {
   type?: InputMaybe<TransactionType>;
 };
 
+export type UpdateUserInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  role?: InputMaybe<Role>;
+};
+
 export type UserModel = {
   __typename?: 'UserModel';
   createdAt: Scalars['DateTimeISO']['output'];
@@ -199,6 +211,14 @@ export type RegisterMutationVariables = Exact<{
 
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'RegisterOutput', token: string, refreshToken: string, user: { __typename?: 'UserModel', id: string, name: string, email: string, role?: Role | null } } };
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  data: UpdateUserInput;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserModel', id: string, name: string, email: string, role?: Role | null } };
 
 export type MyCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -335,6 +355,43 @@ export function useRegisterMutation(baseOptions?: ApolloReactHooks.MutationHookO
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = ApolloReactCommon.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = ApolloReactCommon.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($id: String!, $data: UpdateUserInput!) {
+  updateUser(id: $id, data: $data) {
+    id
+    name
+    email
+    role
+  }
+}
+    `;
+export type UpdateUserMutationFn = ApolloReactCommon.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
+      }
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = ApolloReactCommon.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = ApolloReactCommon.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 export const MyCategoriesDocument = gql`
     query MyCategories {
   myCategories {

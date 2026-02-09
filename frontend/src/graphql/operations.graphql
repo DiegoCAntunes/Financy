@@ -25,6 +25,16 @@ mutation Register($data: RegisterInput!) {
   }
 }
 
+# User Mutations
+mutation UpdateUser($id: String!, $data: UpdateUserInput!) {
+  updateUser(id: $id, data: $data) {
+    id
+    name
+    email
+    role
+  }
+}
+
 # Category Queries & Mutations
 query MyCategories {
   myCategories {

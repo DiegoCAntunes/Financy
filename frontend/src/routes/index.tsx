@@ -6,39 +6,55 @@ import TransactionsPage from "@/pages/transactions";
 import CategoriesPage from "@/pages/categories";
 import ProfilePage from "@/pages/profile";
 import { AppLayout } from "@/components/layout/app-layout";
+import { PrivateRoute } from "@/components/auth/private-route";
+import { PublicRoute } from "@/components/auth/public-route";
 
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/register",
-    element: <RegisterPage />,
-  },
-  {
-    element: <AppLayout />,
+    element: <PublicRoute />,
     children: [
       {
-        path: "/dashboard",
-        element: <DashboardPage />,
+        path: "/login",
+        element: <LoginPage />,
       },
       {
-        path: "/transactions",
-        element: <TransactionsPage />,
+        path: "/register",
+        element: <RegisterPage />,
       },
+    ],
+  },
+  {
+    element: <PrivateRoute />,
+    children: [
       {
-        path: "/categories",
-        element: <CategoriesPage />,
-      },
-      {
-        path: "/profile",
-        element: <ProfilePage />,
+        element: <AppLayout />,
+        children: [
+          {
+            path: "/dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "/transactions",
+            element: <TransactionsPage />,
+          },
+          {
+            path: "/categories",
+            element: <CategoriesPage />,
+          },
+          {
+            path: "/profile",
+            element: <ProfilePage />,
+          },
+        ],
       },
     ],
   },
   {
     path: "/",
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: "*",
     element: <Navigate to="/dashboard" replace />,
   },
 ]);

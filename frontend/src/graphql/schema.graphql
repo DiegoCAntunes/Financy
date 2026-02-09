@@ -99,6 +99,11 @@ input UpdateTransactionInput {
   categoryId: String
 }
 
+input UpdateUserInput {
+  name: String
+  role: Role
+}
+
 # Queries
 type Query {
   getUser(id: String!): UserModel!
@@ -111,6 +116,7 @@ type Query {
 type Mutation {
   login(data: LoginInput!): LoginOutput!
   register(data: RegisterInput!): RegisterOutput!
+  updateUser(id: String!, data: UpdateUserInput!): UserModel!
   createCategory(data: CreateCategoryInput!): CategoryModel!
   updateCategory(id: ID!, data: UpdateCategoryInput!): CategoryModel!
   deleteCategory(id: ID!): CategoryModel!

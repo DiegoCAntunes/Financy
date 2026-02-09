@@ -1,14 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Mail, LogOut } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useAuthStore } from "@/stores/auth-store";
+import { useUpdateUserMutation } from "@/graphql/generated";
 
 export default function ProfilePage() {
-  const [name, setName] = useState("Conta teste");
-  const email = "conta@teste.com";
+  const navigate = useNavigate();
+  const { user, logout, setAuth, token, refreshToken } = useAuthStore();
+  const [updateUserMutation, { loading }] = useUpdateUserMutation();
+
+  const [name, setName] = useState(user?.name ?? "");
+  const email = user?.email ?? "";
 
   const getInitials = (name: string) => {
     return name
@@ -19,14 +27,50 @@ export default function ProfilePage() {
       .slice(0, 2);
   };
 
-  const handleSaveChanges = () => {
-    // TODO: Implementar salvamento
-    console.log("Salvando alterações:", { name });
+  const handleSaveChanges = async () => {
+    if (!user?.id || !token || !refreshToken) return;
+
+    if (name.trim() === "") {
+      toast.error("O nome não pode estar vazio");
+      return;
+    }
+
+    if (name === user.name) {
+      toast.info("Nenhuma alteração para salvar");
+      return;
+    }
+
+    try {
+      const result = await updateUserMutation({
+        variables: {
+          id: user.id,
+          data: {
+            name: name.trim(),
+          },
+        },
+      });
+
+      if (result.data?.updateUser) {
+        const updatedUser = result.data.updateUser;
+        setAuth(token, refreshToken, {
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role ?? undefined,
+        });
+        toast.success("Perfil atualizado com sucesso!");
+      }
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Erro ao atualizar perfil";
+      toast.error(message);
+    }
   };
 
   const handleLogout = () => {
-    // TODO: Implementar logout
-    console.log("Saindo da conta");
+    logout();
+    toast.success("Você saiu da sua conta");
+    navigate("/login");
   };
 
   return (
@@ -36,7 +80,7 @@ export default function ProfilePage() {
           <Avatar className="h-16 w-16">
             <AvatarImage src="" alt={name} />
             <AvatarFallback className="bg-green-700 text-white text-xl font-medium">
-              {getInitials(name)}
+              {getInitials(name || "U")}
             </AvatarFallback>
           </Avatar>
 
@@ -85,8 +129,9 @@ export default function ProfilePage() {
           <Button
             onClick={handleSaveChanges}
             className="w-full h-11 bg-green-600 hover:bg-green-700"
+            disabled={loading}
           >
-            Salvar alterações
+            {loading ? "Salvando..." : "Salvar alterações"}
           </Button>
 
           <Button
