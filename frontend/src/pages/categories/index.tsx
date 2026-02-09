@@ -22,6 +22,7 @@ import {
   MyTransactionsDocument,
 } from "@/graphql/generated";
 import { getIconComponent, getColorClasses } from "@/lib/category-utils";
+import { toast } from "sonner";
 
 export default function CategoriesPage() {
   const {
@@ -75,16 +76,22 @@ export default function CategoriesPage() {
   });
 
   const handleCreateCategory = async (data: CategoryFormData) => {
-    await createCategory({
-      variables: {
-        data: {
-          title: data.title,
-          description: data.description || undefined,
-          icon: data.icon,
-          color: data.color,
+    try {
+      await createCategory({
+        variables: {
+          data: {
+            title: data.title,
+            description: data.description || undefined,
+            icon: data.icon,
+            color: data.color,
+          },
         },
-      },
-    });
+      });
+      toast.success("Categoria criada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao criar categoria:", error);
+      toast.error("Erro ao criar categoria. Tente novamente.");
+    }
   };
 
   const handleDeleteCategory = async (id: string) => {
@@ -92,16 +99,22 @@ export default function CategoriesPage() {
       (t) => t.category.id === id
     );
     if (categoryTransactions.length > 0) {
-      alert(
+      toast.error(
         `Esta categoria possui ${categoryTransactions.length} transação(ões) associada(s). Remova as transações primeiro.`
       );
       return;
     }
 
     if (window.confirm("Tem certeza que deseja excluir esta categoria?")) {
-      await deleteCategory({
-        variables: { id },
-      });
+      try {
+        await deleteCategory({
+          variables: { id },
+        });
+        toast.success("Categoria excluída com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir categoria:", error);
+        toast.error("Erro ao excluir categoria. Tente novamente.");
+      }
     }
   };
 
@@ -123,9 +136,6 @@ export default function CategoriesPage() {
     );
   }
 
-  const MostUsedIcon = mostUsedCategory
-    ? getIconComponent(mostUsedCategory.icon)
-    : Tags;
   const mostUsedColorClasses = mostUsedCategory
     ? getColorClasses(mostUsedCategory.color)
     : { bg: "bg-zinc-100", text: "text-zinc-600" };
@@ -187,7 +197,14 @@ export default function CategoriesPage() {
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-lg ${mostUsedColorClasses.bg}`}
             >
-              <MostUsedIcon className={`h-6 w-6 ${mostUsedColorClasses.text}`} />
+              {mostUsedCategory ? (
+                (() => {
+                  const Icon = getIconComponent(mostUsedCategory.icon);
+                  return <Icon className={`h-6 w-6 ${mostUsedColorClasses.text}`} />;
+                })()
+              ) : (
+                <Tags className={`h-6 w-6 ${mostUsedColorClasses.text}`} />
+              )}
             </div>
             <div>
               <p className="text-3xl font-bold text-foreground">

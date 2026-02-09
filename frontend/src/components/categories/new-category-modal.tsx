@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { iconOptions, colorOptions, getIconComponent } from "@/lib/category-utils";
+import { iconOptions, colorOptions } from "@/lib/category-utils";
 
 interface NewCategoryModalProps {
   children: React.ReactNode;

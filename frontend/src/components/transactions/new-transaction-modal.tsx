@@ -248,9 +248,9 @@ export function NewTransactionModal({
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <div className="py-2 px-2 text-sm text-muted-foreground text-center">
                     Nenhuma categoria disponível
-                  </SelectItem>
+                  </div>
                 )}
               </SelectContent>
             </Select>

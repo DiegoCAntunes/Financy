@@ -43,6 +43,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getIconComponent, getColorClasses } from "@/lib/category-utils";
+import { toast } from "sonner";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -115,31 +116,43 @@ export default function TransactionsPage() {
   }) => {
     if (!data.date || !data.category) return;
 
-    const numericAmount = parseFloat(
-      data.amount.replace(/\./g, "").replace(",", ".")
-    );
+    try {
+      const numericAmount = parseFloat(
+        data.amount.replace(/\./g, "").replace(",", ".")
+      );
 
-    await createTransaction({
-      variables: {
-        data: {
-          description: data.description,
-          amount: numericAmount,
-          date: data.date.toISOString(),
-          type:
-            data.type === "income"
-              ? TransactionType.Income
-              : TransactionType.Expense,
-          categoryId: data.category,
+      await createTransaction({
+        variables: {
+          data: {
+            description: data.description,
+            amount: numericAmount,
+            date: data.date.toISOString(),
+            type:
+              data.type === "income"
+                ? TransactionType.Income
+                : TransactionType.Expense,
+            categoryId: data.category,
+          },
         },
-      },
-    });
+      });
+      toast.success("Transação criada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao criar transação:", error);
+      toast.error("Erro ao criar transação. Tente novamente.");
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
     if (window.confirm("Tem certeza que deseja excluir esta transação?")) {
-      await deleteTransaction({
-        variables: { id },
-      });
+      try {
+        await deleteTransaction({
+          variables: { id },
+        });
+        toast.success("Transação excluída com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir transação:", error);
+        toast.error("Erro ao excluir transação. Tente novamente.");
+      }
     }
   };
 
