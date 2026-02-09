@@ -29,9 +29,17 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+interface Category {
+  id: string;
+  title: string;
+  icon: string;
+  color: string;
+}
+
 interface NewTransactionModalProps {
   children: React.ReactNode;
   onSubmit?: (data: TransactionFormData) => void;
+  categories?: Category[];
 }
 
 export interface TransactionFormData {
@@ -42,19 +50,10 @@ export interface TransactionFormData {
   category: string;
 }
 
-const categories = [
-  { value: "alimentacao", label: "Alimentação" },
-  { value: "transporte", label: "Transporte" },
-  { value: "mercado", label: "Mercado" },
-  { value: "entretenimento", label: "Entretenimento" },
-  { value: "utilidades", label: "Utilidades" },
-  { value: "investimento", label: "Investimento" },
-  { value: "salario", label: "Salário" },
-];
-
 export function NewTransactionModal({
   children,
   onSubmit,
+  categories = [],
 }: NewTransactionModalProps) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<"expense" | "income">("expense");
@@ -242,11 +241,17 @@ export function NewTransactionModal({
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
+                {categories.length > 0 ? (
+                  categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.title}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    Nenhuma categoria disponível
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -255,6 +260,7 @@ export function NewTransactionModal({
           <Button
             type="submit"
             className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-medium"
+            disabled={!description || !date || !amount || !category}
           >
             Salvar
           </Button>

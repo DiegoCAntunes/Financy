@@ -22,6 +22,14 @@ import {
 } from "@/components/ui/table";
 import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
 import {
+  useMyTransactionsQuery,
+  useMyCategoriesQuery,
+  useCreateTransactionMutation,
+  useDeleteTransactionMutation,
+  TransactionType,
+  MyTransactionsDocument,
+} from "@/graphql/generated";
+import {
   Plus,
   Search,
   ArrowUpCircle,
@@ -30,116 +38,11 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
-  Utensils,
-  Car,
-  ShoppingCart,
-  TrendingUp,
-  Home,
-  Briefcase,
-  Film,
+  Loader2,
 } from "lucide-react";
-
-// Mock data
-const mockTransactions = [
-  {
-    id: "1",
-    title: "Jantar no Restaurante",
-    date: "30/11/25",
-    category: "Alimentação",
-    type: "expense" as const,
-    amount: 89.5,
-    icon: Utensils,
-  },
-  {
-    id: "2",
-    title: "Posto de Gasolina",
-    date: "29/11/25",
-    category: "Transporte",
-    type: "expense" as const,
-    amount: 100.0,
-    icon: Car,
-  },
-  {
-    id: "3",
-    title: "Compras no Mercado",
-    date: "28/11/25",
-    category: "Mercado",
-    type: "expense" as const,
-    amount: 156.8,
-    icon: ShoppingCart,
-  },
-  {
-    id: "4",
-    title: "Retorno de Investimento",
-    date: "26/11/25",
-    category: "Investimento",
-    type: "income" as const,
-    amount: 340.25,
-    icon: TrendingUp,
-  },
-  {
-    id: "5",
-    title: "Aluguel",
-    date: "26/11/25",
-    category: "Utilidades",
-    type: "expense" as const,
-    amount: 1700.0,
-    icon: Home,
-  },
-  {
-    id: "6",
-    title: "Freelance",
-    date: "24/11/25",
-    category: "Salário",
-    type: "income" as const,
-    amount: 2500.0,
-    icon: Briefcase,
-  },
-  {
-    id: "7",
-    title: "Compras Jantar",
-    date: "22/11/25",
-    category: "Mercado",
-    type: "expense" as const,
-    amount: 150.0,
-    icon: ShoppingCart,
-  },
-  {
-    id: "8",
-    title: "Cinema",
-    date: "18/12/25",
-    category: "Entretenimento",
-    type: "expense" as const,
-    amount: 88.0,
-    icon: Film,
-  },
-];
-
-const categories = [
-  "Todas",
-  "Alimentação",
-  "Transporte",
-  "Mercado",
-  "Investimento",
-  "Utilidades",
-  "Salário",
-  "Entretenimento",
-];
-
-const categoryColors: Record<string, string> = {
-  Alimentação: "bg-amber-100 text-amber-700 hover:bg-amber-100",
-  Transporte: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
-  Mercado: "bg-lime-100 text-lime-700 hover:bg-lime-100",
-  Investimento: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
-  Utilidades: "bg-orange-100 text-orange-700 hover:bg-orange-100",
-  Salário: "bg-green-100 text-green-700 hover:bg-green-100",
-  Entretenimento: "bg-red-100 text-red-700 hover:bg-red-100",
-};
-
-const iconBgColors: Record<string, string> = {
-  income: "bg-green-50 text-green-600",
-  expense: "bg-zinc-100 text-zinc-600",
-};
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { getIconComponent, getColorClasses } from "@/lib/category-utils";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -148,32 +51,115 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+function formatDate(dateString: string): string {
+  return format(new Date(dateString), "dd/MM/yy", { locale: ptBR });
+}
+
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("Todas");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const filteredTransactions = mockTransactions.filter((transaction) => {
-    const matchesSearch = transaction.title
+  const {
+    data: transactionsData,
+    loading: transactionsLoading,
+    error: transactionsError,
+  } = useMyTransactionsQuery();
+
+  const { data: categoriesData, loading: categoriesLoading } =
+    useMyCategoriesQuery();
+
+  const [createTransaction] = useCreateTransactionMutation({
+    refetchQueries: [{ query: MyTransactionsDocument }],
+  });
+
+  const [deleteTransaction] = useDeleteTransactionMutation({
+    refetchQueries: [{ query: MyTransactionsDocument }],
+  });
+
+  const transactions = transactionsData?.myTransactions ?? [];
+  const categories = categoriesData?.myCategories ?? [];
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesSearch = transaction.description
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesType =
-      typeFilter === "all" || transaction.type === typeFilter;
+      typeFilter === "all" ||
+      (typeFilter === "income" && transaction.type === "INCOME") ||
+      (typeFilter === "expense" && transaction.type === "EXPENSE");
     const matchesCategory =
-      categoryFilter === "Todas" || transaction.category === categoryFilter;
+      categoryFilter === "all" || transaction.category.id === categoryFilter;
     return matchesSearch && matchesType && matchesCategory;
   });
 
-  const totalResults = filteredTransactions.length;
+  // Sort by date descending
+  const sortedTransactions = [...filteredTransactions].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const totalResults = sortedTransactions.length;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalResults);
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    endIndex
-  );
+  const paginatedTransactions = sortedTransactions.slice(startIndex, endIndex);
+
+  const handleCreateTransaction = async (data: {
+    type: "expense" | "income";
+    description: string;
+    date: Date | undefined;
+    amount: string;
+    category: string;
+  }) => {
+    if (!data.date || !data.category) return;
+
+    const numericAmount = parseFloat(
+      data.amount.replace(/\./g, "").replace(",", ".")
+    );
+
+    await createTransaction({
+      variables: {
+        data: {
+          description: data.description,
+          amount: numericAmount,
+          date: data.date.toISOString(),
+          type:
+            data.type === "income"
+              ? TransactionType.Income
+              : TransactionType.Expense,
+          categoryId: data.category,
+        },
+      },
+    });
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    if (window.confirm("Tem certeza que deseja excluir esta transação?")) {
+      await deleteTransaction({
+        variables: { id },
+      });
+    }
+  };
+
+  if (transactionsLoading || categoriesLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (transactionsError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">
+          Erro ao carregar dados: {transactionsError.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -186,7 +172,8 @@ export default function TransactionsPage() {
           </p>
         </div>
         <NewTransactionModal
-          onSubmit={(data) => console.log("Nova transação:", data)}
+          onSubmit={handleCreateTransaction}
+          categories={categories}
         >
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
@@ -233,9 +220,10 @@ export default function TransactionsPage() {
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -244,14 +232,14 @@ export default function TransactionsPage() {
 
             <div className="space-y-2">
               <Label className="text-muted-foreground">Período</Label>
-              <Select defaultValue="nov-2025">
+              <Select defaultValue="all">
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nov-2025">Novembro / 2025</SelectItem>
-                  <SelectItem value="oct-2025">Outubro / 2025</SelectItem>
-                  <SelectItem value="sep-2025">Setembro / 2025</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="current-month">Este mês</SelectItem>
+                  <SelectItem value="last-month">Mês passado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -286,123 +274,151 @@ export default function TransactionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedTransactions.map((transaction) => {
-                const Icon = transaction.icon;
-                return (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="pl-6">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                            iconBgColors[transaction.type]
+              {paginatedTransactions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      Nenhuma transação encontrada
+                    </p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedTransactions.map((transaction) => {
+                  const Icon = getIconComponent(transaction.category.icon);
+                  const type =
+                    transaction.type === "INCOME" ? "income" : "expense";
+                  const colorClasses = getColorClasses(
+                    transaction.category.color
+                  );
+
+                  return (
+                    <TableRow key={transaction.id}>
+                      <TableCell className="pl-6">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                              type === "income"
+                                ? "bg-green-50 text-green-600"
+                                : "bg-zinc-100 text-zinc-600"
+                            }`}
+                          >
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <span className="font-medium">
+                            {transaction.description}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(transaction.date)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full border-0 ${colorClasses.badge}`}
+                        >
+                          {transaction.category.title}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {type === "income" ? (
+                            <ArrowUpCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <ArrowDownCircle className="h-4 w-4 text-red-500" />
+                          )}
+                          <span className="text-sm text-muted-foreground">
+                            {type === "income" ? "Entrada" : "Saída"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span
+                          className={`font-semibold ${
+                            type === "income" ? "text-green-600" : "text-red-600"
                           }`}
                         >
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <span className="font-medium">{transaction.title}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {transaction.date}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className={`rounded-full border-0 ${categoryColors[transaction.category]}`}
-                      >
-                        {transaction.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {transaction.type === "income" ? (
-                          <ArrowUpCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <ArrowDownCircle className="h-4 w-4 text-red-500" />
-                        )}
-                        <span className="text-sm text-muted-foreground">
-                          {transaction.type === "income" ? "Entrada" : "Saída"}
+                          {type === "income" ? "+ " : "- "}
+                          {formatCurrency(transaction.amount)}
                         </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span
-                        className={`font-semibold ${
-                          transaction.type === "income"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {transaction.type === "income" ? "+ " : "- "}
-                        {formatCurrency(transaction.amount)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="pr-6">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      </TableCell>
+                      <TableCell className="pr-6">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                            onClick={() =>
+                              handleDeleteTransaction(transaction.id)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
 
           {/* Pagination */}
-          <Separator />
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-sm text-muted-foreground">
-              {startIndex + 1} a {endIndex} | {totalResults} resultados
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map(
-                (page) => (
+          {totalResults > 0 && (
+            <>
+              <Separator />
+              <div className="flex items-center justify-between px-6 py-4">
+                <span className="text-sm text-muted-foreground">
+                  {startIndex + 1} a {endIndex} | {totalResults} resultados
+                </span>
+                <div className="flex items-center gap-1">
                   <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "ghost"}
+                    variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
                   >
-                    {page}
+                    <ChevronLeft className="h-4 w-4" />
                   </Button>
-                )
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+                  {Array.from(
+                    { length: Math.min(totalPages, 3) },
+                    (_, i) => i + 1
+                  ).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

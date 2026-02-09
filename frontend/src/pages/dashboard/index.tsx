@@ -5,93 +5,23 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
 import {
+  useMyTransactionsQuery,
+  useMyCategoriesQuery,
+  useCreateTransactionMutation,
+  TransactionType,
+  MyTransactionsDocument,
+} from "@/graphql/generated";
+import {
   Wallet,
   ArrowUpCircle,
   ArrowDownCircle,
   Plus,
   ChevronRight,
-  Utensils,
-  Car,
-  ShoppingCart,
-  Banknote,
-  TrendingUp,
+  Loader2,
 } from "lucide-react";
-
-// Mock data
-const summaryData = {
-  totalBalance: 12847.32,
-  monthlyIncome: 4250.0,
-  monthlyExpenses: 2180.45,
-};
-
-const recentTransactions = [
-  {
-    id: "1",
-    title: "Pagamento de Salário",
-    date: "01/12/25",
-    category: "Receita",
-    type: "income" as const,
-    amount: 4250.0,
-    icon: Banknote,
-  },
-  {
-    id: "2",
-    title: "Jantar no Restaurante",
-    date: "30/11/25",
-    category: "Alimentação",
-    type: "expense" as const,
-    amount: 89.5,
-    icon: Utensils,
-  },
-  {
-    id: "3",
-    title: "Posto de Gasolina",
-    date: "29/11/25",
-    category: "Transporte",
-    type: "expense" as const,
-    amount: 100.0,
-    icon: Car,
-  },
-  {
-    id: "4",
-    title: "Compras no Mercado",
-    date: "28/11/25",
-    category: "Mercado",
-    type: "expense" as const,
-    amount: 156.8,
-    icon: ShoppingCart,
-  },
-  {
-    id: "5",
-    title: "Retorno de Investimento",
-    date: "26/11/25",
-    category: "Investimento",
-    type: "income" as const,
-    amount: 340.25,
-    icon: TrendingUp,
-  },
-];
-
-const categories = [
-  { name: "Alimentação", items: 12, total: 542.3, color: "bg-green-100 text-green-700" },
-  { name: "Transporte", items: 8, total: 385.5, color: "bg-yellow-100 text-yellow-700" },
-  { name: "Mercado", items: 3, total: 298.75, color: "bg-lime-100 text-lime-700" },
-  { name: "Entretenimento", items: 2, total: 186.2, color: "bg-orange-100 text-orange-700" },
-  { name: "Utilidades", items: 7, total: 245.8, color: "bg-amber-100 text-amber-700" },
-];
-
-const categoryColors: Record<string, string> = {
-  Receita: "bg-green-100 text-green-700 hover:bg-green-100",
-  Alimentação: "bg-amber-100 text-amber-700 hover:bg-amber-100",
-  Transporte: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
-  Mercado: "bg-lime-100 text-lime-700 hover:bg-lime-100",
-  Investimento: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
-};
-
-const iconBgColors: Record<string, string> = {
-  income: "bg-green-50 text-green-600",
-  expense: "bg-zinc-100 text-zinc-600",
-};
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { getIconComponent, getColorClasses } from "@/lib/category-utils";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -100,7 +30,109 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+function formatDate(dateString: string): string {
+  return format(new Date(dateString), "dd/MM/yy", { locale: ptBR });
+}
+
 export default function DashboardPage() {
+  const {
+    data: transactionsData,
+    loading: transactionsLoading,
+    error: transactionsError,
+  } = useMyTransactionsQuery();
+
+  const {
+    data: categoriesData,
+    loading: categoriesLoading,
+  } = useMyCategoriesQuery();
+
+  const [createTransaction] = useCreateTransactionMutation({
+    refetchQueries: [{ query: MyTransactionsDocument }],
+  });
+
+  const transactions = transactionsData?.myTransactions ?? [];
+  const categories = categoriesData?.myCategories ?? [];
+
+  // Calculate summary data from real transactions
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+
+  const monthlyTransactions = transactions.filter((t) => {
+    const date = new Date(t.date);
+    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  });
+
+  const monthlyIncome = monthlyTransactions
+    .filter((t) => t.type === "INCOME")
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const monthlyExpenses = monthlyTransactions
+    .filter((t) => t.type === "EXPENSE")
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const totalBalance = transactions.reduce((acc, t) => {
+    return t.type === "INCOME" ? acc + t.amount : acc - t.amount;
+  }, 0);
+
+  // Get recent transactions (last 5)
+  const recentTransactions = [...transactions]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
+
+  // Calculate category stats
+  const categoryStats = categories.map((cat) => {
+    const catTransactions = transactions.filter(
+      (t) => t.category.id === cat.id && t.type === "EXPENSE"
+    );
+    return {
+      id: cat.id,
+      name: cat.title,
+      items: catTransactions.length,
+      total: catTransactions.reduce((acc, t) => acc + t.amount, 0),
+      color: getColorClasses(cat.color).badge,
+    };
+  }).filter((cat) => cat.items > 0).slice(0, 5);
+
+  const handleCreateTransaction = async (data: {
+    type: "expense" | "income";
+    description: string;
+    date: Date | undefined;
+    amount: string;
+    category: string;
+  }) => {
+    if (!data.date || !data.category) return;
+
+    const numericAmount = parseFloat(data.amount.replace(/\./g, "").replace(",", "."));
+
+    await createTransaction({
+      variables: {
+        data: {
+          description: data.description,
+          amount: numericAmount,
+          date: data.date.toISOString(),
+          type: data.type === "income" ? TransactionType.Income : TransactionType.Expense,
+          categoryId: data.category,
+        },
+      },
+    });
+  };
+
+  if (transactionsLoading || categoriesLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (transactionsError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-red-500">Erro ao carregar dados: {transactionsError.message}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -112,7 +144,7 @@ export default function DashboardPage() {
               <span className="uppercase tracking-wide">Saldo Total</span>
             </div>
             <p className="mt-2 text-3xl font-bold text-foreground">
-              {formatCurrency(summaryData.totalBalance)}
+              {formatCurrency(totalBalance)}
             </p>
           </CardContent>
         </Card>
@@ -124,7 +156,7 @@ export default function DashboardPage() {
               <span className="uppercase tracking-wide">Receitas do Mês</span>
             </div>
             <p className="mt-2 text-3xl font-bold text-foreground">
-              {formatCurrency(summaryData.monthlyIncome)}
+              {formatCurrency(monthlyIncome)}
             </p>
           </CardContent>
         </Card>
@@ -136,7 +168,7 @@ export default function DashboardPage() {
               <span className="uppercase tracking-wide">Despesas do Mês</span>
             </div>
             <p className="mt-2 text-3xl font-bold text-foreground">
-              {formatCurrency(summaryData.monthlyExpenses)}
+              {formatCurrency(monthlyExpenses)}
             </p>
           </CardContent>
         </Card>
@@ -161,67 +193,79 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-4">
-              {recentTransactions.map((transaction) => {
-                const Icon = transaction.icon;
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          iconBgColors[transaction.type]
-                        }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {transaction.title}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {transaction.date}
-                        </p>
-                      </div>
-                    </div>
+              {recentTransactions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Nenhuma transação encontrada
+                </p>
+              ) : (
+                recentTransactions.map((transaction) => {
+                  const Icon = getIconComponent(transaction.category.icon);
+                  const type = transaction.type === "INCOME" ? "income" : "expense";
+                  const colorClasses = getColorClasses(transaction.category.color);
 
-                    <div className="flex items-center gap-4">
-                      <Badge
-                        variant="secondary"
-                        className={`rounded-full border-0 ${categoryColors[transaction.category]}`}
-                      >
-                        {transaction.category}
-                      </Badge>
-                      <div className="flex items-center gap-2 text-right">
-                        <span
-                          className={`font-semibold ${
-                            transaction.type === "income"
-                              ? "text-green-600"
-                              : "text-red-600"
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                            type === "income"
+                              ? "bg-green-50 text-green-600"
+                              : "bg-zinc-100 text-zinc-600"
                           }`}
                         >
-                          {transaction.type === "income" ? "+ " : "- "}
-                          {formatCurrency(transaction.amount)}
-                        </span>
-                        <ArrowUpCircle
-                          className={`h-5 w-5 ${
-                            transaction.type === "income"
-                              ? "text-green-500"
-                              : "text-red-500 rotate-180"
-                          }`}
-                        />
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {transaction.description}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {formatDate(transaction.date)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <Badge
+                          variant="secondary"
+                          className={`rounded-full border-0 ${colorClasses.badge}`}
+                        >
+                          {transaction.category.title}
+                        </Badge>
+                        <div className="flex items-center gap-2 text-right">
+                          <span
+                            className={`font-semibold ${
+                              type === "income"
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {type === "income" ? "+ " : "- "}
+                            {formatCurrency(transaction.amount)}
+                          </span>
+                          <ArrowUpCircle
+                            className={`h-5 w-5 ${
+                              type === "income"
+                                ? "text-green-500"
+                                : "text-red-500 rotate-180"
+                            }`}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
             <Separator className="my-6" />
 
             <NewTransactionModal
-              onSubmit={(data) => console.log("Nova transação:", data)}
+              onSubmit={handleCreateTransaction}
+              categories={categories}
             >
               <Button
                 variant="ghost"
@@ -251,27 +295,33 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-4">
-              {categories.map((category) => (
-                <div
-                  key={category.name}
-                  className="flex items-center justify-between"
-                >
-                  <Badge
-                    variant="secondary"
-                    className={`rounded-full border-0 ${category.color} hover:opacity-100`}
+              {categoryStats.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Nenhuma categoria com transações
+                </p>
+              ) : (
+                categoryStats.map((category) => (
+                  <div
+                    key={category.id}
+                    className="flex items-center justify-between"
                   >
-                    {category.name}
-                  </Badge>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">
-                      {category.items} itens
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {formatCurrency(category.total)}
-                    </span>
+                    <Badge
+                      variant="secondary"
+                      className={`rounded-full border-0 ${category.color} hover:opacity-100`}
+                    >
+                      {category.name}
+                    </Badge>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-muted-foreground">
+                        {category.items} {category.items === 1 ? "item" : "itens"}
+                      </span>
+                      <span className="font-semibold text-foreground">
+                        {formatCurrency(category.total)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

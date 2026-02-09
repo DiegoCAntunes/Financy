@@ -1,22 +1,5 @@
 import { useState } from "react";
-import {
-  Wallet,
-  Car,
-  PiggyBank,
-  ShoppingCart,
-  Building2,
-  Calendar,
-  Utensils,
-  Accessibility,
-  Home,
-  Gift,
-  Gamepad2,
-  Smartphone,
-  TreePine,
-  Monitor,
-  FileText,
-  type LucideIcon,
-} from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 import {
   Dialog,
@@ -30,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { iconOptions, colorOptions, getIconComponent } from "@/lib/category-utils";
 
 interface NewCategoryModalProps {
   children: React.ReactNode;
@@ -42,34 +26,6 @@ export interface CategoryFormData {
   icon: string;
   color: string;
 }
-
-const iconOptions: { id: string; icon: LucideIcon }[] = [
-  { id: "wallet", icon: Wallet },
-  { id: "car", icon: Car },
-  { id: "piggy-bank", icon: PiggyBank },
-  { id: "shopping-cart", icon: ShoppingCart },
-  { id: "building", icon: Building2 },
-  { id: "calendar", icon: Calendar },
-  { id: "utensils", icon: Utensils },
-  { id: "accessibility", icon: Accessibility },
-  { id: "home", icon: Home },
-  { id: "gift", icon: Gift },
-  { id: "gamepad", icon: Gamepad2 },
-  { id: "smartphone", icon: Smartphone },
-  { id: "tree", icon: TreePine },
-  { id: "monitor", icon: Monitor },
-  { id: "file", icon: FileText },
-];
-
-const colorOptions = [
-  { id: "green", bg: "bg-green-500", ring: "ring-green-500" },
-  { id: "blue", bg: "bg-blue-500", ring: "ring-blue-500" },
-  { id: "purple", bg: "bg-purple-500", ring: "ring-purple-500" },
-  { id: "pink", bg: "bg-pink-500", ring: "ring-pink-500" },
-  { id: "rose", bg: "bg-rose-500", ring: "ring-rose-500" },
-  { id: "orange", bg: "bg-orange-500", ring: "ring-orange-500" },
-  { id: "amber", bg: "bg-amber-500", ring: "ring-amber-500" },
-];
 
 export function NewCategoryModal({
   children,
@@ -102,6 +58,9 @@ export function NewCategoryModal({
     setSelectedIcon("wallet");
     setSelectedColor("green");
   };
+
+  // Get first 15 icons to display in the grid
+  const displayIcons = iconOptions.slice(0, 15);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -159,8 +118,8 @@ export function NewCategoryModal({
             <div className="space-y-2">
               <Label className="text-sm text-zinc-700">Ícone</Label>
               <div className="grid grid-cols-8 gap-2">
-                {iconOptions.map((option) => {
-                  const Icon = option.icon;
+                {displayIcons.map((option) => {
+                  const Icon = option.icon as LucideIcon;
                   const isSelected = selectedIcon === option.id;
                   return (
                     <button
@@ -209,6 +168,7 @@ export function NewCategoryModal({
           <Button
             type="submit"
             className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-medium"
+            disabled={!title}
           >
             Salvar
           </Button>
