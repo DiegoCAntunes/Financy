@@ -19,21 +19,9 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { getIconComponent, getColorClasses } from "@/lib/category-utils";
+import { formatCurrency, formatDate } from "@/lib/formatting";
 import { toast } from "sonner";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-}
-
-function formatDate(dateString: string): string {
-  return format(new Date(dateString), "dd/MM/yy", { locale: ptBR });
-}
 
 export default function DashboardPage() {
   const {
@@ -60,6 +48,7 @@ export default function DashboardPage() {
 
   const monthlyTransactions = transactions.filter((t) => {
     const date = new Date(t.date);
+    if (isNaN(date.getTime())) return false;
     return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
   });
 
@@ -105,6 +94,11 @@ export default function DashboardPage() {
 
     try {
       const numericAmount = parseFloat(data.amount.replace(/\./g, "").replace(",", "."));
+
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast.error("Valor inválido. Insira um número positivo.");
+        return;
+      }
 
       await createTransaction({
         variables: {
@@ -217,11 +211,7 @@ export default function DashboardPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                            type === "income"
-                              ? "bg-green-50 text-green-600"
-                              : "bg-zinc-100 text-zinc-600"
-                          }`}
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${colorClasses.bg} ${colorClasses.text}`}
                         >
                           <Icon className="h-5 w-5" />
                         </div>

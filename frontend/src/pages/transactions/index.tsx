@@ -35,26 +35,13 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Trash2,
-  Pencil,
   ChevronLeft,
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { getIconComponent, getColorClasses } from "@/lib/category-utils";
+import { formatCurrency, formatDate } from "@/lib/formatting";
 import { toast } from "sonner";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-}
-
-function formatDate(dateString: string): string {
-  return format(new Date(dateString), "dd/MM/yy", { locale: ptBR });
-}
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -120,6 +107,11 @@ export default function TransactionsPage() {
       const numericAmount = parseFloat(
         data.amount.replace(/\./g, "").replace(",", ".")
       );
+
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast.error("Valor inválido. Insira um número positivo.");
+        return;
+      }
 
       await createTransaction({
         variables: {
@@ -198,7 +190,7 @@ export default function TransactionsPage() {
       {/* Filters */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label className="text-muted-foreground">Buscar</Label>
               <div className="relative">
@@ -239,20 +231,6 @@ export default function TransactionsPage() {
                       {category.title}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Período</Label>
-              <Select defaultValue="all">
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o período" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="current-month">Este mês</SelectItem>
-                  <SelectItem value="last-month">Mês passado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -309,11 +287,7 @@ export default function TransactionsPage() {
                       <TableCell className="pl-6">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                              type === "income"
-                                ? "bg-green-50 text-green-600"
-                                : "bg-zinc-100 text-zinc-600"
-                            }`}
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${colorClasses.bg} ${colorClasses.text}`}
                           >
                             <Icon className="h-5 w-5" />
                           </div>
@@ -356,25 +330,16 @@ export default function TransactionsPage() {
                         </span>
                       </TableCell>
                       <TableCell className="pr-6">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-red-600"
-                            onClick={() =>
-                              handleDeleteTransaction(transaction.id)
-                            }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                          onClick={() =>
+                            handleDeleteTransaction(transaction.id)
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
@@ -403,20 +368,37 @@ export default function TransactionsPage() {
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  {Array.from(
-                    { length: Math.min(totalPages, 3) },
-                    (_, i) => i + 1
-                  ).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "ghost"}
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  {(() => {
+                    const pages: (number | string)[] = [];
+                    if (totalPages <= 5) {
+                      for (let i = 1; i <= totalPages; i++) pages.push(i);
+                    } else {
+                      pages.push(1);
+                      if (currentPage > 3) pages.push("...");
+                      const start = Math.max(2, currentPage - 1);
+                      const end = Math.min(totalPages - 1, currentPage + 1);
+                      for (let i = start; i <= end; i++) pages.push(i);
+                      if (currentPage < totalPages - 2) pages.push("...");
+                      pages.push(totalPages);
+                    }
+                    return pages.map((page, idx) =>
+                      typeof page === "string" ? (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                          {page}
+                        </span>
+                      ) : (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "ghost"}
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      )
+                    );
+                  })()}
                   <Button
                     variant="ghost"
                     size="icon"
