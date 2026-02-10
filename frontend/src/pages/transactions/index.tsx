@@ -20,8 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
-import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
+import { NewTransactionModal } from "./components/new-transaction-modal";
+import { EditTransactionModal } from "./components/edit-transaction-modal";
 import {
   useMyTransactionsQuery,
   useMyCategoriesQuery,

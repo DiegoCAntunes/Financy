@@ -13,8 +13,8 @@ import {
 import {
   NewCategoryModal,
   type CategoryFormData,
-} from "@/components/categories/new-category-modal";
-import { EditCategoryModal } from "@/components/categories/edit-category-modal";
+} from "./components/new-category-modal";
+import { EditCategoryModal } from "./components/edit-category-modal";
 import {
   useMyCategoriesQuery,
   useMyTransactionsQuery,
