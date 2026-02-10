@@ -1,73 +1,160 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+# 💰 Financy – Personal Finance Manager (Frontend)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Financy is a frontend application built with **React, TypeScript, Vite, GraphQL (Apollo Client), and Tailwind CSS**, designed to provide a modern and intuitive interface for managing personal financial transactions and categories.
 
-## React Compiler
+The application enforces **user-scoped data access**, ensuring that each user can only view and manage their own data.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19
+- TypeScript
+- Vite (bundler)
+- GraphQL (Apollo Client)
+- Tailwind CSS
+- Radix UI + shadcn/ui
+- React Hook Form + Zod (form validation)
+- Zustand (state management)
+- React Router DOM v7
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🔐 Authentication & User Experience
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Users can **create an account (register)**
+- Users can **log in**
+- Authentication state is managed via **Zustand store**
+- JWT tokens are stored and automatically sent with GraphQL requests
+- Protected routes redirect unauthenticated users to login
+- "Remember me" functionality for persistent sessions
+
+---
+
+## 📌 Project Requirements
+
+All required features have been fully implemented.
+
+### ✅ User
+
+- [x] O usuário pode criar uma conta e fazer login
+
+### ✅ Transactions
+
+- [x] O usuário pode ver e gerenciar apenas as transações criadas por ele
+- [x] Deve ser possível criar uma transação
+- [x] Deve ser possível editar uma transação
+- [x] Deve ser possível deletar uma transação
+- [x] Deve ser possível listar todas as transações
+
+### ✅ Categories
+
+- [x] O usuário pode ver e gerenciar apenas as categorias criadas por ele
+- [x] Deve ser possível criar uma categoria
+- [x] Deve ser possível editar uma categoria
+- [x] Deve ser possível deletar uma categoria
+- [x] Deve ser possível listar todas as categorias
+
+### ✅ Frontend-Specific Requirements
+
+- [x] É obrigatória a criação de uma aplicação React usando GraphQL para consultas na API e Vite como `bundler`
+- [x] Siga o mais fielmente possível o layout do Figma
+
+---
+
+## 🔒 Security & Data Isolation
+
+- All API requests include the user's JWT token for authentication
+- GraphQL queries/mutations are scoped to the authenticated user
+- Users cannot access or modify data belonging to other users
+- Sensitive data is never stored in plain text
+
+---
+
+## 🧱 Architecture Overview
+
+```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui base components
+│   ├── auth/            # Auth-related components
+│   ├── layout/          # App shell, header, sidebar
+│   ├── transactions/    # Transaction modals and components
+│   └── categories/      # Category modals and components
+├── pages/               # Route page components
+├── graphql/
+│   ├── operations.graphql  # GraphQL queries/mutations
+│   ├── schema.graphql      # Copy of backend schema
+│   └── generated.ts        # Codegen output (DO NOT EDIT)
+├── stores/              # Zustand stores
+├── schemas/             # Zod validation schemas
+├── lib/                 # Utilities, Apollo client config
+└── routes/              # Router configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🎨 UI/UX Features
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Dashboard**: Summary cards showing total balance, monthly income/expenses, and recent transactions
+- **Transactions Page**: Full CRUD with filtering by type, category, and search; pagination support
+- **Categories Page**: Grid layout with category cards, usage statistics, and full CRUD operations
+- **Responsive Design**: Mobile-friendly layout using Tailwind CSS
+- **Toast Notifications**: User feedback via Sonner toast library
+- **Form Validation**: Client-side validation with Zod schemas
+
+---
+
+## 🚀 Running the Project
+
+### 1. Install dependencies
+```bash
+pnpm install
 ```
+
+### 2. Start the development server
+```bash
+pnpm dev
+```
+
+The application will be available at:
+
+```
+http://localhost:5173
+```
+
+> **Note**: Make sure the backend server is running on port 4000 before starting the frontend.
+
+---
+
+## 🧪 Development Scripts
+
+```bash
+pnpm dev          # Start Vite dev server
+pnpm build        # Production build
+pnpm lint         # ESLint
+pnpm lint:fix     # ESLint with auto-fix
+pnpm type-check   # TypeScript check
+pnpm test         # Run tests (vitest)
+pnpm test:watch   # Tests in watch mode
+```
+
+---
+
+## 📊 GraphQL Workflow
+
+1. Backend schema auto-generates to `backend/schema.graphql` on server start
+2. Copy schema to `frontend/src/graphql/schema.graphql`
+3. Define operations in `frontend/src/graphql/operations.graphql`
+4. Run codegen to generate typed hooks:
+```bash
+pnpm dlx @graphql-codegen/cli
+```
+
+---
+
+**Author:** Diego Cazetta Antunes
+**Project:** Financy
+**Type:** Academic / Portfolio Project

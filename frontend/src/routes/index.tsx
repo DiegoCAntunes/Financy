@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import HomePage from "@/pages/home";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
 import DashboardPage from "@/pages/dashboard";
@@ -10,6 +11,10 @@ import { PrivateRoute } from "@/components/auth/private-route";
 import { PublicRoute } from "@/components/auth/public-route";
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
   {
     element: <PublicRoute />,
     children: [
@@ -50,11 +55,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/",
-    element: <Navigate to="/dashboard" replace />,
-  },
-  {
     path: "*",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/" replace />,
   },
 ]);

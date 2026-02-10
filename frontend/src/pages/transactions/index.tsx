@@ -21,10 +21,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { NewTransactionModal } from "@/components/transactions/new-transaction-modal";
+import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
 import {
   useMyTransactionsQuery,
   useMyCategoriesQuery,
   useCreateTransactionMutation,
+  useUpdateTransactionMutation,
   useDeleteTransactionMutation,
   TransactionType,
   MyTransactionsDocument,
@@ -35,6 +37,7 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Trash2,
+  Pencil,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -43,11 +46,27 @@ import { getIconComponent, getColorClasses } from "@/lib/category-utils";
 import { formatCurrency, formatDate } from "@/lib/formatting";
 import { toast } from "sonner";
 
+interface Transaction {
+  id: string;
+  description: string;
+  amount: number;
+  date: string;
+  type: "INCOME" | "EXPENSE";
+  category: {
+    id: string;
+    title: string;
+    icon: string;
+    color: string;
+  };
+}
+
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
   const itemsPerPage = 10;
 
   const {
@@ -64,6 +83,10 @@ export default function TransactionsPage() {
   });
 
   const [deleteTransaction] = useDeleteTransactionMutation({
+    refetchQueries: [{ query: MyTransactionsDocument }],
+  });
+
+  const [updateTransaction] = useUpdateTransactionMutation({
     refetchQueries: [{ query: MyTransactionsDocument }],
   });
 
@@ -145,6 +168,55 @@ export default function TransactionsPage() {
         console.error("Erro ao excluir transação:", error);
         toast.error("Erro ao excluir transação. Tente novamente.");
       }
+    }
+  };
+
+  const openEditModal = (transaction: Transaction) => {
+    setTransactionToEdit(transaction);
+    setEditModalOpen(true);
+  };
+
+  const handleEditTransaction = async (
+    id: string,
+    data: {
+      type: "expense" | "income";
+      description: string;
+      date: Date | undefined;
+      amount: string;
+      category: string;
+    }
+  ) => {
+    if (!data.date || !data.category) return;
+
+    try {
+      const numericAmount = parseFloat(
+        data.amount.replace(/\./g, "").replace(",", ".")
+      );
+
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast.error("Valor inválido. Insira um número positivo.");
+        return;
+      }
+
+      await updateTransaction({
+        variables: {
+          id,
+          data: {
+            description: data.description,
+            amount: numericAmount,
+            date: data.date.toISOString(),
+            type:
+              data.type === "income"
+                ? TransactionType.Income
+                : TransactionType.Expense,
+            categoryId: data.category,
+          },
+        },
+      });
+      toast.success("Transação atualizada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar transação:", error);
+      toast.error("Erro ao atualizar transação. Tente novamente.");
     }
   };
 
@@ -330,16 +402,26 @@ export default function TransactionsPage() {
                         </span>
                       </TableCell>
                       <TableCell className="pr-6">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-red-600"
-                          onClick={() =>
-                            handleDeleteTransaction(transaction.id)
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => openEditModal(transaction as Transaction)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                            onClick={() =>
+                              handleDeleteTransaction(transaction.id)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -416,6 +498,15 @@ export default function TransactionsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        transaction={transactionToEdit}
+        onSubmit={handleEditTransaction}
+        categories={categories}
+      />
     </div>
   );
 }

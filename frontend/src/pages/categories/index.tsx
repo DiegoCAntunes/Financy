@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +14,12 @@ import {
   NewCategoryModal,
   type CategoryFormData,
 } from "@/components/categories/new-category-modal";
+import { EditCategoryModal } from "@/components/categories/edit-category-modal";
 import {
   useMyCategoriesQuery,
   useMyTransactionsQuery,
   useCreateCategoryMutation,
+  useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   MyCategoriesDocument,
   MyTransactionsDocument,
@@ -24,7 +27,18 @@ import {
 import { getIconComponent, getColorClasses } from "@/lib/category-utils";
 import { toast } from "sonner";
 
+interface Category {
+  id: string;
+  title: string;
+  description?: string | null;
+  icon: string;
+  color: string;
+}
+
 export default function CategoriesPage() {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
+
   const {
     data: categoriesData,
     loading: categoriesLoading,
@@ -43,6 +57,10 @@ export default function CategoriesPage() {
       { query: MyCategoriesDocument },
       { query: MyTransactionsDocument },
     ],
+  });
+
+  const [updateCategory] = useUpdateCategoryMutation({
+    refetchQueries: [{ query: MyCategoriesDocument }],
   });
 
   const categories = categoriesData?.myCategories ?? [];
@@ -115,6 +133,34 @@ export default function CategoriesPage() {
         console.error("Erro ao excluir categoria:", error);
         toast.error("Erro ao excluir categoria. Tente novamente.");
       }
+    }
+  };
+
+  const openEditModal = (category: Category) => {
+    setCategoryToEdit(category);
+    setEditModalOpen(true);
+  };
+
+  const handleEditCategory = async (
+    id: string,
+    data: CategoryFormData
+  ) => {
+    try {
+      await updateCategory({
+        variables: {
+          id,
+          data: {
+            title: data.title,
+            description: data.description || undefined,
+            icon: data.icon,
+            color: data.color,
+          },
+        },
+      });
+      toast.success("Categoria atualizada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar categoria:", error);
+      toast.error("Erro ao atualizar categoria. Tente novamente.");
     }
   };
 
@@ -263,6 +309,10 @@ export default function CategoriesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          const cat = categories.find((c) => c.id === category.id);
+                          if (cat) openEditModal(cat as Category);
+                        }}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -294,6 +344,14 @@ export default function CategoriesPage() {
           })}
         </div>
       )}
+
+      {/* Edit Category Modal */}
+      <EditCategoryModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        category={categoryToEdit}
+        onSubmit={handleEditCategory}
+      />
     </div>
   );
 }
