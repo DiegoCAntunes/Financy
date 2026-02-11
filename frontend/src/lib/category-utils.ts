@@ -119,9 +119,9 @@ export function getColorClasses(colorName: string): {
 } {
   return (
     colorMap[colorName] || {
-      bg: "bg-zinc-100",
-      text: "text-zinc-600",
-      badge: "bg-zinc-100 text-zinc-700 hover:bg-zinc-100",
+      bg: "bg-secondary",
+      text: "text-muted-foreground",
+      badge: "bg-secondary text-foreground hover:bg-secondary",
     }
   );
 }

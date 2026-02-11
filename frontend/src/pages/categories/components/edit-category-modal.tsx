@@ -79,7 +79,7 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Title Field */}
         <div className="space-y-2">
-          <Label htmlFor="edit-title" className="text-sm text-zinc-700">
+          <Label htmlFor="edit-title" className="text-sm text-foreground">
             Titulo
           </Label>
           <Input
@@ -88,15 +88,15 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className={cn(
-              "h-11 border-zinc-200",
-              title ? "bg-white" : "bg-zinc-50"
+              "h-11 border-border",
+              title ? "bg-background" : "bg-secondary"
             )}
           />
         </div>
 
         {/* Description Field */}
         <div className="space-y-2">
-          <Label htmlFor="edit-description" className="text-sm text-zinc-700">
+          <Label htmlFor="edit-description" className="text-sm text-foreground">
             Descricao
           </Label>
           <Input
@@ -105,8 +105,8 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className={cn(
-              "h-11 border-zinc-200",
-              description ? "bg-white" : "bg-zinc-50"
+              "h-11 border-border",
+              description ? "bg-background" : "bg-secondary"
             )}
           />
         </div>
@@ -117,7 +117,7 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
 
           {/* Icon Selector */}
           <div className="space-y-2">
-            <Label className="text-sm text-zinc-700">Icone</Label>
+            <Label className="text-sm text-foreground">Icone</Label>
             <div className="grid grid-cols-8 gap-2">
               {displayIcons.map((option) => {
                 const Icon = option.icon as LucideIcon;
@@ -130,8 +130,8 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-lg border transition-all",
                       isSelected
-                        ? "border-green-500 bg-green-50 text-green-600"
-                        : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                        ? "border-success bg-green-50 text-success"
+                        : "border-border bg-background text-muted-foreground hover:border-muted-foreground hover:bg-secondary"
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -143,7 +143,7 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
 
           {/* Color Selector */}
           <div className="space-y-2">
-            <Label className="text-sm text-zinc-700">Cor</Label>
+            <Label className="text-sm text-foreground">Cor</Label>
             <div className="flex gap-2">
               {colorOptions.map((color) => {
                 const isSelected = selectedColor === color.id;
@@ -168,7 +168,7 @@ function EditCategoryForm({ category, onSubmit, onClose }: EditCategoryFormProps
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-medium"
+          className="w-full h-12 font-medium"
           disabled={!title}
         >
           Salvar alteracoes

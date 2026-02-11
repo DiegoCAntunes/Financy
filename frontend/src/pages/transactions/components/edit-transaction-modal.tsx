@@ -133,21 +133,21 @@ function EditTransactionForm({
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Transaction Type Toggle */}
-        <div className="flex w-full rounded-lg border border-zinc-200 p-1">
+        <div className="flex w-full rounded-lg border border-border p-1">
           <button
             type="button"
             onClick={() => setType("expense")}
             className={cn(
               "flex flex-1 items-center justify-center gap-2 rounded-md border py-2.5 text-sm font-medium transition-colors",
               type === "expense"
-                ? "border-red-500 bg-white text-zinc-900"
-                : "border-transparent text-zinc-500 hover:text-zinc-700"
+                ? "border-destructive bg-background text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
             <MinusCircle
               className={cn(
                 "h-4 w-4",
-                type === "expense" ? "text-red-500" : "text-zinc-400"
+                type === "expense" ? "text-destructive" : "text-muted-foreground"
               )}
             />
             Despesa
@@ -158,14 +158,14 @@ function EditTransactionForm({
             className={cn(
               "flex flex-1 items-center justify-center gap-2 rounded-md border py-2.5 text-sm font-medium transition-colors",
               type === "income"
-                ? "border-green-500 bg-white text-zinc-900"
-                : "border-transparent text-zinc-500 hover:text-zinc-700"
+                ? "border-success bg-background text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
             <PlusCircle
               className={cn(
                 "h-4 w-4",
-                type === "income" ? "text-green-500" : "text-zinc-400"
+                type === "income" ? "text-success" : "text-muted-foreground"
               )}
             />
             Receita
@@ -174,7 +174,7 @@ function EditTransactionForm({
 
         {/* Description Field */}
         <div className="space-y-2">
-          <Label htmlFor="edit-description" className="text-sm text-zinc-700">
+          <Label htmlFor="edit-description" className="text-sm text-foreground">
             Descricao
           </Label>
           <Input
@@ -183,8 +183,8 @@ function EditTransactionForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className={cn(
-              "h-11 border-zinc-200",
-              description ? "bg-white" : "bg-zinc-50"
+              "h-11 border-border",
+              description ? "bg-background" : "bg-secondary"
             )}
           />
         </div>
@@ -193,17 +193,17 @@ function EditTransactionForm({
         <div className="grid grid-cols-2 gap-4">
           {/* Date Field */}
           <div className="space-y-2">
-            <Label className="text-sm text-zinc-700">Data</Label>
+            <Label className="text-sm text-foreground">Data</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "h-11 w-full justify-start border-zinc-200 font-normal",
-                    date ? "bg-white" : "bg-zinc-50 text-muted-foreground"
+                    "h-11 w-full justify-start border-border font-normal",
+                    date ? "bg-background" : "bg-secondary text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4 text-zinc-400" />
+                  <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                   {date ? (
                     format(date, "dd/MM/yy", { locale: ptBR })
                   ) : (
@@ -225,11 +225,11 @@ function EditTransactionForm({
 
           {/* Amount Field */}
           <div className="space-y-2">
-            <Label htmlFor="edit-amount" className="text-sm text-zinc-700">
+            <Label htmlFor="edit-amount" className="text-sm text-foreground">
               Valor
             </Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                 R$
               </span>
               <Input
@@ -238,8 +238,8 @@ function EditTransactionForm({
                 value={amount}
                 onChange={handleAmountChange}
                 className={cn(
-                  "h-11 pl-9 border-zinc-200",
-                  amount && amount !== "0,00" ? "bg-white" : "bg-zinc-50"
+                  "h-11 pl-9 border-border",
+                  amount && amount !== "0,00" ? "bg-background" : "bg-secondary"
                 )}
               />
             </div>
@@ -248,12 +248,12 @@ function EditTransactionForm({
 
         {/* Category Field */}
         <div className="space-y-2">
-          <Label className="text-sm text-zinc-700">Categoria</Label>
+          <Label className="text-sm text-foreground">Categoria</Label>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger
               className={cn(
-                "h-11 border-zinc-200",
-                category ? "bg-white" : "bg-zinc-50"
+                "h-11 border-border",
+                category ? "bg-background" : "bg-secondary"
               )}
             >
               <SelectValue placeholder="Selecione" />
@@ -277,7 +277,7 @@ function EditTransactionForm({
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full h-12 bg-green-700 hover:bg-green-800 text-white font-medium"
+          className="w-full h-12 font-medium"
           disabled={!description || !date || !amount || !category}
         >
           Salvar alteracoes

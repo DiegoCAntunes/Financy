@@ -77,10 +77,10 @@ export default function RegisterPage() {
 
       <AuthCard>
         <CardHeader className="text-center space-y-1 px-8 pt-8 pb-6">
-          <CardTitle className="text-xl font-bold text-gray-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Criar conta
           </CardTitle>
-          <CardDescription className="text-gray-500">
+          <CardDescription className="text-muted-foreground">
             Comece a controlar suas finanças ainda hoje
           </CardDescription>
         </CardHeader>
@@ -93,15 +93,15 @@ export default function RegisterPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Nome completo
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         <Input
                           placeholder="Seu nome completo"
-                          className="pl-10 h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                          className="pl-10 h-11 border-border focus:border-primary focus:ring-primary"
                           {...field}
                         />
                       </div>
@@ -116,15 +116,15 @@ export default function RegisterPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       E-mail
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         <Input
                           placeholder="mail@exemplo.com"
-                          className="pl-10 h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                          className="pl-10 h-11 border-border focus:border-primary focus:ring-primary"
                           {...field}
                         />
                       </div>
@@ -139,17 +139,17 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Senha
                     </FormLabel>
                     <FormControl>
                       <PasswordInput
                         placeholder="Digite sua senha"
-                        className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                        className="h-11 border-border focus:border-primary focus:ring-primary"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-gray-500">
+                    <FormDescription className="text-muted-foreground">
                       A senha deve ter no mínimo 8 caracteres
                     </FormDescription>
                     <FormMessage />
@@ -159,7 +159,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-green-800 hover:bg-green-900 text-white font-medium"
+                className="w-full h-11 font-medium"
                 disabled={loading}
               >
                 {loading ? "Cadastrando..." : "Cadastrar"}
@@ -170,10 +170,10 @@ export default function RegisterPage() {
           <AuthDivider />
 
           <div className="text-center space-y-4">
-            <p className="text-sm text-gray-500">Já tem uma conta?</p>
+            <p className="text-sm text-muted-foreground">Já tem uma conta?</p>
             <Button
               variant="outline"
-              className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="w-full h-11"
               asChild
             >
               <Link to="/login">

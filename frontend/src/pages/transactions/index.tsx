@@ -231,7 +231,7 @@ export default function TransactionsPage() {
   if (transactionsError) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-red-500">
+        <p className="text-destructive">
           Erro ao carregar dados: {transactionsError.message}
         </p>
       </div>
@@ -382,9 +382,9 @@ export default function TransactionsPage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {type === "income" ? (
-                            <ArrowUpCircle className="h-4 w-4 text-green-500" />
+                            <ArrowUpCircle className="h-4 w-4 text-success" />
                           ) : (
-                            <ArrowDownCircle className="h-4 w-4 text-red-500" />
+                            <ArrowDownCircle className="h-4 w-4 text-destructive" />
                           )}
                           <span className="text-sm text-muted-foreground">
                             {type === "income" ? "Entrada" : "Saída"}
@@ -394,7 +394,7 @@ export default function TransactionsPage() {
                       <TableCell className="text-right">
                         <span
                           className={`font-semibold ${
-                            type === "income" ? "text-green-600" : "text-red-600"
+                            type === "income" ? "text-success" : "text-destructive"
                           }`}
                         >
                           {type === "income" ? "+ " : "- "}
@@ -414,7 +414,7 @@ export default function TransactionsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             onClick={() =>
                               handleDeleteTransaction(transaction.id)
                             }

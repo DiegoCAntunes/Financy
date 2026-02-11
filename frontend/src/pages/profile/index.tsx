@@ -74,60 +74,60 @@ export default function ProfilePage() {
 
   return (
     <div className="flex justify-center pt-8">
-      <div className="w-full max-w-md rounded-lg border-2 border-dashed border-zinc-300 bg-white p-8">
+      <div className="w-full max-w-md rounded-lg border-2 border-dashed border-border bg-background p-8">
         <div className="flex flex-col items-center">
           <Avatar className="h-16 w-16">
             <AvatarImage src="" alt={name} />
-            <AvatarFallback className="bg-green-700 text-white text-xl font-medium">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xl font-medium">
               {getInitials(name || "U")}
             </AvatarFallback>
           </Avatar>
 
-          <h1 className="mt-4 text-lg font-semibold text-zinc-900">{name}</h1>
-          <p className="text-sm text-zinc-500">{email}</p>
+          <h1 className="mt-4 text-lg font-semibold text-foreground">{name}</h1>
+          <p className="text-sm text-muted-foreground">{email}</p>
         </div>
 
         <Separator className="my-6" />
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-zinc-700">
+            <Label htmlFor="name" className="text-foreground">
               Nome completo
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-11 pl-10 bg-zinc-50 border-zinc-200"
+                className="pl-10"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-zinc-700">
+            <Label htmlFor="email" className="text-foreground">
               E-mail
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 disabled
-                className="h-11 pl-10 bg-zinc-50 border-zinc-200"
+                className="pl-10"
               />
             </div>
-            <p className="text-xs text-zinc-500">O e-mail não pode ser alterado</p>
+            <p className="text-xs text-muted-foreground">O e-mail não pode ser alterado</p>
           </div>
         </div>
 
         <div className="mt-6 space-y-3">
           <Button
             onClick={handleSaveChanges}
-            className="w-full h-11 bg-green-600 hover:bg-green-700"
+            className="w-full h-11"
             disabled={loading}
           >
             {loading ? "Salvando..." : "Salvar alterações"}
@@ -136,7 +136,7 @@ export default function ProfilePage() {
           <Button
             variant="outline"
             onClick={handleLogout}
-            className="w-full h-11 border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+            className="w-full h-11"
           >
             <LogOut className="h-4 w-4" />
             Sair da conta

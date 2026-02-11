@@ -80,10 +80,10 @@ export default function LoginPage() {
 
       <AuthCard>
         <CardHeader className="text-center space-y-1 px-8 pt-8 pb-6">
-          <CardTitle className="text-xl font-bold text-gray-900">
+          <CardTitle className="text-xl font-bold text-foreground">
             Fazer login
           </CardTitle>
-          <CardDescription className="text-gray-500">
+          <CardDescription className="text-muted-foreground">
             Entre na sua conta para continuar
           </CardDescription>
         </CardHeader>
@@ -96,15 +96,15 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       E-mail
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         <Input
                           placeholder="mail@exemplo.com"
-                          className="pl-10 h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                          className="pl-10 h-11 border-border focus:border-primary focus:ring-primary"
                           {...field}
                         />
                       </div>
@@ -119,13 +119,13 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-foreground">
                       Senha
                     </FormLabel>
                     <FormControl>
                       <PasswordInput
                         placeholder="Digite sua senha"
-                        className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                        className="h-11 border-border focus:border-primary focus:ring-primary"
                         {...field}
                       />
                     </FormControl>
@@ -144,10 +144,10 @@ export default function LoginPage() {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal text-gray-600 cursor-pointer">
+                      <FormLabel className="text-sm font-normal text-muted-foreground cursor-pointer">
                         Lembrar-me
                       </FormLabel>
                     </FormItem>
@@ -164,7 +164,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-green-800 hover:bg-green-900 text-white font-medium"
+                className="w-full h-11 font-medium"
                 disabled={loading}
               >
                 {loading ? "Entrando..." : "Entrar"}
@@ -175,10 +175,10 @@ export default function LoginPage() {
           <AuthDivider />
 
           <div className="text-center space-y-4">
-            <p className="text-sm text-gray-500">Ainda não tem uma conta?</p>
+            <p className="text-sm text-muted-foreground">Ainda não tem uma conta?</p>
             <Button
               variant="outline"
-              className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="w-full h-11"
               asChild
             >
               <Link to="/register">

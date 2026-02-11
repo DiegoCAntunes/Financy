@@ -23,7 +23,7 @@ export function Header() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="border-b border-border bg-background">
       <div className="mx-auto flex h-[69px] max-w-[1280px] items-center justify-between px-12 py-4">
         <div className="flex items-center gap-10">
           <Link to="/dashboard" className="flex items-center gap-[11px]">
@@ -51,7 +51,7 @@ export function Header() {
 
         <Link to="/profile" aria-label="Ir para perfil">
           <Avatar className="h-10 w-10 cursor-pointer">
-            <AvatarFallback className="bg-zinc-200 text-zinc-600 text-sm font-medium">
+            <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
               {getInitials(user?.name)}
             </AvatarFallback>
           </Avatar>

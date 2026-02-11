@@ -175,7 +175,7 @@ export default function CategoriesPage() {
   if (categoriesError) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-red-500">
+        <p className="text-destructive">
           Erro ao carregar dados: {categoriesError.message}
         </p>
       </div>
@@ -184,7 +184,7 @@ export default function CategoriesPage() {
 
   const mostUsedColorClasses = mostUsedCategory
     ? getColorClasses(mostUsedCategory.color)
-    : { bg: "bg-zinc-100", text: "text-zinc-600" };
+    : { bg: "bg-secondary", text: "text-muted-foreground" };
 
   return (
     <div className="space-y-6">
@@ -208,8 +208,8 @@ export default function CategoriesPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="border-0 shadow-sm">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100">
-              <Tags className="h-6 w-6 text-zinc-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
+              <Tags className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
               <p className="text-3xl font-bold text-foreground">
@@ -224,8 +224,8 @@ export default function CategoriesPage() {
 
         <Card className="border-0 shadow-sm">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100">
-              <ArrowUpDown className="h-6 w-6 text-zinc-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
+              <ArrowUpDown className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
               <p className="text-3xl font-bold text-foreground">
@@ -300,7 +300,7 @@ export default function CategoriesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-red-600"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => handleDeleteCategory(category.id)}
                       >
                         <Trash2 className="h-4 w-4" />

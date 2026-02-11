@@ -129,7 +129,7 @@ export default function DashboardPage() {
   if (transactionsError) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-red-500">Erro ao carregar dados: {transactionsError.message}</p>
+        <p className="text-destructive">Erro ao carregar dados: {transactionsError.message}</p>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function DashboardPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <ArrowUpCircle className="h-4 w-4 text-green-500" />
+              <ArrowUpCircle className="h-4 w-4 text-success" />
               <span className="uppercase tracking-wide">Receitas do Mês</span>
             </div>
             <p className="mt-2 text-3xl font-bold text-foreground">
@@ -165,7 +165,7 @@ export default function DashboardPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <ArrowDownCircle className="h-4 w-4 text-red-500" />
+              <ArrowDownCircle className="h-4 w-4 text-destructive" />
               <span className="uppercase tracking-wide">Despesas do Mês</span>
             </div>
             <p className="mt-2 text-3xl font-bold text-foreground">
@@ -236,8 +236,8 @@ export default function DashboardPage() {
                           <span
                             className={`font-semibold ${
                               type === "income"
-                                ? "text-green-600"
-                                : "text-red-600"
+                                ? "text-success"
+                                : "text-destructive"
                             }`}
                           >
                             {type === "income" ? "+ " : "- "}
@@ -246,8 +246,8 @@ export default function DashboardPage() {
                           <ArrowUpCircle
                             className={`h-5 w-5 ${
                               type === "income"
-                                ? "text-green-500"
-                                : "text-red-500 rotate-180"
+                                ? "text-success"
+                                : "text-destructive rotate-180"
                             }`}
                           />
                         </div>

@@ -16,7 +16,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     return (
       <div className="relative">
         {showIcon && (
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         )}
         <Input
           ref={ref}
@@ -33,9 +33,9 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           tabIndex={-1}
         >
           {showPassword ? (
-            <EyeClosed className="h-4 w-4 text-gray-900" />
+            <EyeClosed className="h-4 w-4 text-foreground" />
           ) : (
-            <Eye className="h-4 w-4 text-gray-900" />
+            <Eye className="h-4 w-4 text-foreground" />
           )}
         </Button>
       </div>
